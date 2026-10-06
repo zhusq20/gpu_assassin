@@ -1,0 +1,34 @@
+服务器 GPU 使用规则（管理员批准生效）
+
+禁止自动发现空闲 GPU 后自行启动任务、循环抢占显存或重启已被回收的占卡任务。
+已确认的 idle-gpu-watch / wayfold supervise 自动占卡机制及其自动创建的
+apiopt-gpt6-judge-gpu*、apiopt-gpt61-judge-gpu* 服务被封禁。
+需要恢复这些被封禁的服务，应由管理员修改根目录下的策略，不得自行绕过。
+
+空闲回收：任务占用显存合计超过 1024 MiB，所用所有 GPU 的计算及显存
+活动采样值连续 1800 秒均低于 5%，发送 SIGTERM；60 秒后仍占用 GPU 的
+原任务发送 SIGKILL。约 25 分钟时先写入预告日志。
+采样间隔 1 秒。遥测失败、出现未知数值或采样间隔超过 5 秒，重新累计
+空闲时间。任何一张所属 GPU 活跃时，尚未进入终止阶段的任务被保留。
+任务分组使用 systemd/cgroup 或进程组；GPU 利用率为设备级采样，所以共享
+同一繁忙 GPU 的闲置进程可能被保守保留。本服务不是逐指令的连续测量。
+
+普通账户不能停止或修改 root 管理的 gpu-guard 系统服务。管理员必须使用
+显式 sudo/root 权限管理；具备 root、免密 sudo 或等价容器宿主机权限的
+账户不在普通用户防护边界内。
+
+本机制封禁已识别的自动启动入口，并回收符合空闲条件的 GPU 任务。
+不能仅凭 GPU 统计识别任意新脚本的启动意图。若要求所有新任务必须先经
+审批/配额/排队才能访问 GPU，需要单独部署调度器和设备访问控制。
+
+状态：cat /run/gpu-guard/status.json
+策略：/etc/gpu-guard/config.json（root 可写）
+日志：sudo journalctl -u gpu-guard.service
+审计：/var/log/gpu-guard/events.jsonl（自动轮转）
+管理员维护：sudo systemctl stop gpu-guard.service
+恢复监测：sudo systemctl start gpu-guard.service
+
+已隔离硬件：GPU-99021681-ed48-34fb-6701-934f2747f190
+原 PCI 0000:45:00.0，序列号 1792625081039。不可纠正显存错误且重映射失败，
+维修检测前不得重新投入计算。驱动排除此卡后 GPU 数字编号可能发生变化，
+请使用 GPU UUID 或 PCI 地址确认任务目标。

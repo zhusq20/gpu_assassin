@@ -1,0 +1,12 @@
+[Unit]
+Description=Quarantine GPU with exhausted memory row remapping
+After=systemd-modules-load.service
+Before=gpu-guard.service nvidia-dcgm.service multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -I /usr/local/lib/gpu-guard/gpu_quarantine.py
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

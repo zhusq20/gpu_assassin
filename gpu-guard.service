@@ -1,0 +1,34 @@
+[Unit]
+Description=Root-managed GPU idle occupancy and auto-claim policy
+After=systemd-user-sessions.service nvidia-persistenced.service gpu-quarantine.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/bin/python3 -I /usr/local/lib/gpu-guard/gpu_guard.py
+Restart=always
+RestartSec=5
+UMask=0027
+RuntimeDirectory=gpu-guard
+RuntimeDirectoryMode=0755
+LogsDirectory=gpu-guard
+LogsDirectoryMode=0750
+StateDirectory=gpu-guard
+StateDirectoryMode=0700
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+LockPersonality=yes
+ReadWritePaths=/run/gpu-guard /var/log/gpu-guard /var/lib/gpu-guard
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

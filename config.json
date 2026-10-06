@@ -1,0 +1,20 @@
+{
+  "enforce": true,
+  "sample_seconds": 1,
+  "max_sample_gap_seconds": 5,
+  "idle_seconds": 1800,
+  "utilization_threshold": 5,
+  "memory_threshold_mib": 1024,
+  "term_grace_seconds": 60,
+  "warning_seconds": 300,
+  "blocked_units": [
+    "apiopt-gpt6-idle-gpu-watch.service",
+    "apiopt-gpt61-wayfold-monitor.service",
+    "apiopt-gpt6-judge-gpu*.service",
+    "apiopt-gpt61-judge-gpu*.service"
+  ],
+  "blocked_commands": [
+    ["watch_idle_judge_gpus.py"],
+    ["run_gpt61_wayfold.py", "supervise"]
+  ]
+}

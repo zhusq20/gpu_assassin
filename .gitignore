@@ -1,0 +1,5 @@
+__pycache__/
+install-guard.py
+# incident-specific one-off scripts (original host, other users)
+install.py
+finalize.py

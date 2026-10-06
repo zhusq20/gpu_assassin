@@ -1,0 +1,9 @@
+// GPU policy services may be managed only from an explicit root context.
+polkit.addRule(function(action, subject) {
+    var protectedUnits = ["gpu-guard.service", "gpu-quarantine.service"];
+    if (action.id === "org.freedesktop.systemd1.manage-units" &&
+        protectedUnits.indexOf(action.lookup("unit")) !== -1 &&
+        subject.user !== "root") {
+        return polkit.Result.NO;
+    }
+});
